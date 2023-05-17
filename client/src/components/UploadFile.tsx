@@ -11,20 +11,22 @@ interface IShowResponse {
 }
 
 const UploadFile = () => {
-  const [file, setFile] = useState<any>('');
+  const [file, setFile] = useState<any>("");
+  const [heading, setHeading] = useState<string>("Upload CSV File Here...");
   const [uploading, setUploading] = useState<boolean>(false);
   const [resSuccess, setResSuccess] = useState<boolean>(false);
-  const [resData, setResData] = useState<IShowResponse>({totalRecordsInserted: 0, totalDuplicateRecordInCSV: 0, totalDuplicateRecordInDB: 0});
+  const [resData, setResData] = useState<IShowResponse>({ totalRecordsInserted: 0, totalDuplicateRecordInCSV: 0, totalDuplicateRecordInDB: 0 });
 
-  function handleAcceptedFiles(files: any) {
+  const handleAcceptedFiles = (files: any) => {
     setFile(files);
-  }
+  };
 
   useEffect(() => {
     if (file) {
       setUploading(true);
+      setHeading("Uploading CSV data...");
       const formData = new FormData();
-      formData.append('file', file[0]);
+      formData.append("file", file[0]);
 
       axios({
         url: "http://localhost:8080/api/v1/users/upload-csv",
@@ -35,46 +37,51 @@ const UploadFile = () => {
         data: formData,
       })
         .then((res) => {
-          setResData({...res.data});
+          setResData({ ...res.data });
           setUploading(false);
-          setFile('');
+          setFile("");
           setResSuccess(true);
+          setHeading("Uploaded data summary...");
         })
-        .catch((err) => console.log(err));
+        .catch((err) => 
+          // eslint-disable-next-line
+          console.log(err)
+        );
     }
-  }, [file])
+  }, [file]);
 
   return (
     <>
+      <h1 className="text-3xl font-bold mb-6">{heading}</h1>
       {!uploading && !resSuccess && <Dropzone
         maxFiles={1}
         onDrop={acceptedFiles => {
-          handleAcceptedFiles(acceptedFiles)
+          handleAcceptedFiles(acceptedFiles);
         }}
       >
         {({ getRootProps, getInputProps }) => (
           <div className="dropzone flex-flex-col items-center justify-center">
             <div
-              className="dz-message needsclick mt-2"
+              className="dz-message needsclick mt-2 flex items-center flex-col border-2 p-10 bg-white"
               {...getRootProps()}
             >
               <input name="image" {...getInputProps()} />
               <div className="mb-3">
-                <img src={'upload-icon.png'} alt="upload csv" />
+                <img src={"upload-icon.png"} alt="upload csv" />
               </div>
               <h4>Drop files here or click to upload.</h4>
             </div>
           </div>
         )}
       </Dropzone>}
-      {uploading &&  <Loading />}
-      {resSuccess &&  <ShowResponse 
-        totalRecordsInserted={resData.totalRecordsInserted} 
-        totalDuplicateRecordInCSV={resData.totalDuplicateRecordInCSV} 
-        totalDuplicateRecordInDB={resData.totalDuplicateRecordInDB} 
+      {uploading && <Loading />}
+      {resSuccess && <ShowResponse
+        totalRecordsInserted={resData.totalRecordsInserted}
+        totalDuplicateRecordInCSV={resData.totalDuplicateRecordInCSV}
+        totalDuplicateRecordInDB={resData.totalDuplicateRecordInDB}
       />}
     </>
-  )
-}
+  );
+};
 
 export default UploadFile;

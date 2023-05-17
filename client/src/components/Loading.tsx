@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 function Loading() {
   return (
@@ -9,7 +9,7 @@ function Loading() {
       </svg>
       <span className="sr-only">Loading...</span>
     </div>
-  )
+  );
 }
 
 export default Loading;
