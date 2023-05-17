@@ -16,10 +16,12 @@ const userSchema: Schema<IUser> =
     firstName: {
       type: String,
       required: true,
+      unique: true,
     },
     lastName: {
       type: String,
       required: true,
+      unique: true,
     },
     email: {
       type: String,
@@ -34,6 +36,7 @@ const userSchema: Schema<IUser> =
     phoneNumber: {
       type: String,
       required: true,
+      unique: true,
     },
   });
 

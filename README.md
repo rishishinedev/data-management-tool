@@ -1,46 +1,59 @@
-# Getting Started with Create React App
+## Data Management Tool
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Objective: The task is to build a application that allows users to upload csv file with
+50,00000 data from the FE and BE will validate that csv by checking the duplicate data and store data in the databse.
 
-## Available Scripts
+API Documentation :-
 
-In the project directory, you can run:
+https://documenter.getpostman.com/view/11445516/2s93kxdSFR
 
-### `npm start`
+Source Code:-
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+github - https://github.com/rishishinedev/data-management-tool
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Features:
 
-### `npm test`
+- User Upload a csv by selecting or drag & drop from FE.
+- Then upload csv file at BE.
+- Check the duplicate data and filter that data.
+- Store that data in Database.
+- In response it will send Total Records Inserted, Total Duplicate Record In CSV, Total Duplicate Record In DB.
+- Then showing that data to the FE.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Tech Stack for FE:
+[React] for UI
+[Typescript] for development
+[axios] for api request
+[tailwind-css] for design
+[react-dropzone] for droping/uploading a csv file
 
-### `npm run build`
+Tech Stack for BE:
+[Javascript] for development
+[Nodejs] for backend
+[multer] for file upload
+[express] for server
+[mongoose] for database
+[csv-parser] for convert CSV into JSON
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+[Environment Variables For BE] [.env]
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+DB_URL=""
+PORT=8080
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+[Before local setup]
 
-### `npm run eject`
+- git clone - https://github.com/rishishinedev/data-management-tool
+- cd data-management-tool
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+[Local-Setup-Steps FE]
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- cd client
+- npm install
+- npm start
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+[Local-Setup-Steps BE]
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- cd server
+- set env
+- npm install --force
+- npm run start

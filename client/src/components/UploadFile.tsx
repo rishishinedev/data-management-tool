@@ -5,9 +5,9 @@ import Loading from "./Loading";
 import ShowResponse from "./ShowResponse";
 
 interface IShowResponse {
-  totalDuplicateRecordInCSV: number,
-  totalDuplicateRecordInDB: number,
-  totalRecordsInserted: number,
+  totalDuplicateRecordInCSV: number;
+  totalDuplicateRecordInDB: number;
+  totalRecordsInserted: number;
 }
 
 const UploadFile = () => {
@@ -15,7 +15,11 @@ const UploadFile = () => {
   const [heading, setHeading] = useState<string>("Upload CSV File Here...");
   const [uploading, setUploading] = useState<boolean>(false);
   const [resSuccess, setResSuccess] = useState<boolean>(false);
-  const [resData, setResData] = useState<IShowResponse>({ totalRecordsInserted: 0, totalDuplicateRecordInCSV: 0, totalDuplicateRecordInDB: 0 });
+  const [resData, setResData] = useState<IShowResponse>({
+    totalRecordsInserted: 0,
+    totalDuplicateRecordInCSV: 0,
+    totalDuplicateRecordInDB: 0,
+  });
 
   const handleAcceptedFiles = (files: any) => {
     setFile(files);
@@ -36,14 +40,14 @@ const UploadFile = () => {
         },
         data: formData,
       })
-        .then((res) => {
+        .then((res: any) => {
           setResData({ ...res.data });
           setUploading(false);
           setFile("");
           setResSuccess(true);
           setHeading("Uploaded data summary...");
         })
-        .catch((err) => 
+        .catch((err: any) =>
           // eslint-disable-next-line
           console.log(err)
         );
@@ -53,33 +57,36 @@ const UploadFile = () => {
   return (
     <>
       <h1 className="text-3xl font-bold mb-6">{heading}</h1>
-      {!uploading && !resSuccess && <Dropzone
-        maxFiles={1}
-        onDrop={acceptedFiles => {
-          handleAcceptedFiles(acceptedFiles);
-        }}
-      >
-        {({ getRootProps, getInputProps }) => (
-          <div className="dropzone flex-flex-col items-center justify-center">
-            <div
-              className="dz-message needsclick mt-2 flex items-center flex-col border-2 p-10 bg-white"
-              {...getRootProps()}
-            >
-              <input name="image" {...getInputProps()} />
-              <div className="mb-3">
-                <img src={"upload-icon.png"} alt="upload csv" />
+      {!uploading && !resSuccess && (
+        <Dropzone
+          maxFiles={1}
+          onDrop={(acceptedFiles) => {
+            handleAcceptedFiles(acceptedFiles);
+          }}
+        >
+          {({ getRootProps, getInputProps }) => (
+            <div className="dropzone flex-flex-col items-center justify-center">
+              <div
+                className="dz-message needsclick mt-2 flex items-center flex-col border-2 p-10 bg-white"
+                {...getRootProps()}
+              >
+                <input name="image" {...getInputProps()} />
+                <div className="mb-3">
+                  <img src={"upload-icon.png"} alt="upload csv" />
+                </div>
+                <h4>Drop files here or click to upload.</h4>
               </div>
-              <h4>Drop files here or click to upload.</h4>
             </div>
-          </div>
-        )}
-      </Dropzone>}
+          )}
+        </Dropzone>
+      )}
       {uploading && <Loading />}
-      {resSuccess && <ShowResponse
-        totalRecordsInserted={resData.totalRecordsInserted}
-        totalDuplicateRecordInCSV={resData.totalDuplicateRecordInCSV}
-        totalDuplicateRecordInDB={resData.totalDuplicateRecordInDB}
-      />}
+      {resSuccess && (
+        <ShowResponse
+          totalRecordsInserted={resData.totalRecordsInserted}
+          totalDuplicateRecordInDB={resData.totalDuplicateRecordInDB}
+        />
+      )}
     </>
   );
 };
