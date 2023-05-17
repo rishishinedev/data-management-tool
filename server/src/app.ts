@@ -1,4 +1,9 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, {
+  Application,
+  Request,
+  Response,
+  NextFunction,
+} from 'express';
 import userRouter from './routes/userRoutes';
 // Boot express
 const app: Application = express();

@@ -32,6 +32,14 @@ const uploadCSV = async (
   }
 
   const filePath = req.file.path;
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({
+      status: 'failed',
+      message: 'File does not exist',
+    });
+  }
+
   const {
     totalRecordsInserted,
     totalDuplicateRecordInCSV,
@@ -53,6 +61,7 @@ async function uploadAndInsertData(
   let recordsInserted = 0;
   let duplicateRecordInCSV = 0;
   let duplicateRecordInDB = 0;
+  console.log(csvFilePath);
 
   const stream = fs
     .createReadStream(csvFilePath)
@@ -76,7 +85,7 @@ async function uploadAndInsertData(
     }
   }
 
-  unlink(csvFilePath, (err) => {});
+  // unlink(csvFilePath, (err) => {});
 
   return {
     totalRecordsInserted: recordsInserted,
@@ -86,4 +95,8 @@ async function uploadAndInsertData(
   };
 }
 
-export default { upload, uploadCSV };
+export default {
+  upload,
+  uploadCSV,
+  uploadAndInsertData,
+};
