@@ -42,14 +42,14 @@ const uploadCSV = async (
 
   const {
     totalRecordsInserted,
-    totalDuplicateRecordInCSV,
+
     totalDuplicateRecordInDB,
   }: any = await uploadAndInsertData(filePath);
 
   return res.status(200).json({
     status: 'Data uploaded',
     totalRecordsInserted,
-    totalDuplicateRecordInCSV,
+
     totalDuplicateRecordInDB,
   });
 };
@@ -57,9 +57,7 @@ const uploadCSV = async (
 async function uploadAndInsertData(
   csvFilePath: string
 ): Promise<object> {
-  const existingEmails: Set<string> = new Set();
   let recordsInserted = 0;
-  let duplicateRecordInCSV = 0;
   let duplicateRecordInDB = 0;
   console.log(csvFilePath);
 
@@ -70,27 +68,19 @@ async function uploadAndInsertData(
   for await (const record of stream) {
     const { email } = record;
 
-    if (existingEmails.has(email)) {
-      duplicateRecordInCSV++;
-      continue;
-    }
-
     const user: IUser = new userModel(record);
     try {
       await user.save();
-      existingEmails.add(email);
       recordsInserted++;
     } catch (error) {
       duplicateRecordInDB++;
     }
   }
 
-  // unlink(csvFilePath, (err) => {});
+  unlink(csvFilePath, (err) => {});
 
   return {
     totalRecordsInserted: recordsInserted,
-    totalDuplicateRecordInCSV:
-      duplicateRecordInCSV,
     totalDuplicateRecordInDB: duplicateRecordInDB,
   };
 }

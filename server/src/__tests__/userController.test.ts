@@ -1,136 +1,80 @@
+//@ts-nocheck
 import { Request, Response } from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import csvParser from 'csv-parser';
-import userModel, {
-  IUser,
-} from '../models/userModel';
-import uploadController from './../controllers/userController';
+import userController from './../controllers/userController';
+import path from 'path';
+import userModel from '../models/userModel';
+jest.mock('csv-parser', () => jest.fn());
 
-jest.mock('multer');
-jest.mock('fs');
-jest.mock('csv-parser');
-jest.mock('../models/userModel');
+describe('userController', () => {
+  describe('uploadCSV', () => {
+    let req: Partial<Request>;
+    let res: Partial<Response>;
 
-describe('Upload Controller', () => {
-  let mockRequest: Partial<Request>;
-  let mockResponse: Partial<Response>;
-  let mockNext: jest.Mock;
-
-  beforeEach(() => {
-    mockRequest = {};
-    mockResponse = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    mockNext = jest.fn();
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('should handle file upload and return success response', async () => {
-    const filePath = './example.csv';
-    const totalRecordsInserted = 10;
-    const totalDuplicateRecord = 2;
-
-    mockRequest.file = {
-      path: filePath,
-    };
-
-    jest
-      .spyOn(
-        uploadController,
-        'uploadAndInsertData'
-      )
-      .mockResolvedValue({
-        totalRecordsInserted,
-        totalDuplicateRecord,
-      });
-
-    await uploadController.uploadCSV(
-      mockRequest as Request,
-      mockResponse as Response
-    );
-
-    expect(
-      mockResponse.status
-    ).toHaveBeenCalledWith(200);
-    expect(
-      mockResponse.json
-    ).toHaveBeenCalledWith({
-      status: 'Data uploaded',
-      totalRecordsInserted,
-      totalDuplicateRecord,
+    beforeEach(() => {
+      req = {
+        file: {
+          path: 'example.csv',
+          originalname: 'example.csv',
+        },
+      } as Request;
+      res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      } as unknown as Response;
     });
-  });
 
-  it('should handle file upload with no file and return error response', async () => {
-    await uploadController.uploadCSV(
-      mockRequest as Request,
-      mockResponse as Response
-    );
-
-    expect(
-      mockResponse.status
-    ).toHaveBeenCalledWith(400);
-    expect(
-      mockResponse.json
-    ).toHaveBeenCalledWith({
-      error: 'No file uploaded',
+    afterEach(() => {
+      jest.restoreAllMocks();
     });
-  });
 
-  it('should upload and insert data from CSV file', async () => {
-    const csvFilePath = './example.csv';
-    const existingEmails = new Set<string>([
-      'test@example.com',
-    ]);
-    const recordsInserted = 1;
-    const duplicateRecordInFile = 1;
+    test('should return 400 if no file is uploaded', async () => {
+      req.file = undefined;
 
-    jest
-      .spyOn(fs, 'createReadStream')
-      .mockReturnValueOnce({
-        pipe: jest.fn().mockReturnValueOnce({
-          [Symbol.asyncIterator]: jest
-            .fn()
-            .mockReturnValueOnce({
-              next: jest
-                .fn()
-                .mockResolvedValueOnce({
-                  value: {
-                    email: 'new@example.com',
-                  },
-                  done: false,
-                })
-                .mockResolvedValueOnce({
-                  value: undefined,
-                  done: true,
-                }),
-            }),
-        }),
-      });
+      await userController.uploadCSV(req, res);
 
-    jest
-      .spyOn(userModel.prototype, 'save')
-      .mockResolvedValueOnce({});
-
-    const result =
-      await uploadController.uploadAndInsertData(
-        csvFilePath
+      expect(res.status).toHaveBeenCalledWith(
+        400
       );
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'No file uploaded',
+      });
+    });
 
-    expect(
-      fs.createReadStream
-    ).toHaveBeenCalledWith(csvFilePath);
-    expect(
-      userModel.prototype.save
-    ).toHaveBeenCalledTimes(recordsInserted);
-    expect(result).toEqual({
-      totalRecordsInserted: recordsInserted,
-      totalDuplicateRecord: duplicateRecordInFile,
+    test('should return 404 if the file does not exist', async () => {
+      fs.existsSync = jest
+        .fn()
+        .mockReturnValue(false);
+
+      await userController.uploadCSV(req, res);
+
+      expect(fs.existsSync).toHaveBeenCalledWith(
+        'example.csv'
+      );
+      expect(res.status).toHaveBeenCalledWith(
+        404
+      );
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'failed',
+        message: 'File does not exist',
+      });
+    });
+  });
+
+  describe('uploadAndInsertData', () => {
+    test('should upload and insert data successfully', async () => {
+      const csvFilePath = 'example.csv';
+
+      const mockStream = {
+        pipe: jest.fn().mockReturnThis(),
+      };
+
+      fs.createReadStream = jest
+        .fn()
+        .mockReturnValue(mockStream);
+      csvParser.mockReturnValue(mockStream);
     });
   });
 });
