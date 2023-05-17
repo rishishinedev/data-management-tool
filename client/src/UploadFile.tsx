@@ -1,51 +1,78 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Dropzone from "react-dropzone";
+import axios from "axios";
+import Loading from "./Loading";
+import ShowResponse from "./ShowResponse";
+
+interface IShowResponse {
+  totalDuplicateRecordInCSV: number,
+  totalDuplicateRecordInDB: number,
+  totalRecordsInserted: number,
+}
 
 const UploadFile = () => {
+  const [file, setFile] = useState<any>('');
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [resSuccess, setResSuccess] = useState<boolean>(false);
+  const [resData, setResData] = useState<IShowResponse>({totalRecordsInserted: 0, totalDuplicateRecordInCSV: 0, totalDuplicateRecordInDB: 0});
 
-  function formatBytes(bytes: number, decimals = 2) {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const dm = decimals < 0 ? 0 : decimals
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i]
+  function handleAcceptedFiles(files: any) {
+    setFile(files);
   }
 
-  function handleAcceptedFiles(files: Array<any>) {
-    // validation.setFieldValue("image", files[0])
-    files.map((file) =>
-      Object.assign(file, {
-        preview: URL.createObjectURL(file),
-        formattedSize: formatBytes(file.size),
+  useEffect(() => {
+    if (file) {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', file[0]);
+
+      axios({
+        url: "http://localhost:8080/api/v1/users/upload-csv",
+        method: "POST",
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+        data: formData,
       })
-    )
-    console.log(files);
-  }
+        .then((res) => {
+          setResData({...res.data});
+          setUploading(false);
+          setFile('');
+          setResSuccess(true);
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [file])
 
   return (
     <>
-      <Dropzone
+      {!uploading && !resSuccess && <Dropzone
         maxFiles={1}
         onDrop={acceptedFiles => {
           handleAcceptedFiles(acceptedFiles)
         }}
       >
         {({ getRootProps, getInputProps }) => (
-          <div className="dropzone">
+          <div className="dropzone flex-flex-col items-center justify-center">
             <div
               className="dz-message needsclick mt-2"
               {...getRootProps()}
             >
               <input name="image" {...getInputProps()} />
               <div className="mb-3">
-                <img  src={'upload-icon.png'} alt="upload csv" />
+                <img src={'upload-icon.png'} alt="upload csv" />
               </div>
               <h4>Drop files here or click to upload.</h4>
             </div>
           </div>
         )}
-      </Dropzone>
+      </Dropzone>}
+      {uploading &&  <Loading />}
+      {resSuccess &&  <ShowResponse 
+        totalRecordsInserted={resData.totalRecordsInserted} 
+        totalDuplicateRecordInCSV={resData.totalDuplicateRecordInCSV} 
+        totalDuplicateRecordInDB={resData.totalDuplicateRecordInDB} 
+      />}
     </>
   )
 }
