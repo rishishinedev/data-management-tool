@@ -3,6 +3,7 @@ import Dropzone from "react-dropzone";
 import axios from "axios";
 import Loading from "./Loading";
 import ShowResponse from "./ShowResponse";
+import Error from "./Error";
 
 interface IShowResponse {
   totalDuplicateRecordInCSV: number;
@@ -15,6 +16,7 @@ const UploadFile = () => {
   const [heading, setHeading] = useState<string>("Upload CSV File Here...");
   const [uploading, setUploading] = useState<boolean>(false);
   const [resSuccess, setResSuccess] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
   const [resData, setResData] = useState<IShowResponse>({
     totalRecordsInserted: 0,
     totalDuplicateRecordInCSV: 0,
@@ -47,17 +49,21 @@ const UploadFile = () => {
           setResSuccess(true);
           setHeading("Uploaded data summary...");
         })
-        .catch((err: any) =>
+        .catch((err: any) => {
           // eslint-disable-next-line
           console.log(err)
-        );
+          setError(true);
+          setUploading(false);
+          setFile("");
+          setHeading("Only CSV files are allowed...");
+        });
     }
   }, [file]);
 
   return (
     <>
       <h1 className="text-3xl font-bold mb-6">{heading}</h1>
-      {!uploading && !resSuccess && (
+      {!uploading && !resSuccess && !error && (
         <Dropzone
           maxFiles={1}
           onDrop={(acceptedFiles) => {
@@ -87,6 +93,7 @@ const UploadFile = () => {
           totalDuplicateRecordInDB={resData.totalDuplicateRecordInDB}
         />
       )}
+      {error && <Error />}
     </>
   );
 };
