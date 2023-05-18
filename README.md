@@ -45,15 +45,15 @@ PORT=8080
 - git clone - https://github.com/rishishinedev/data-management-tool
 - cd data-management-tool
 
-[Local-Setup-Steps FE]
-
-- cd client
-- npm install
-- npm start
-
 [Local-Setup-Steps BE]
 
 - cd server
 - set env
 - npm install --force
 - npm run start
+
+[Local-Setup-Steps FE]
+
+- cd client
+- npm install
+- npm start

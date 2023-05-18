@@ -5,8 +5,12 @@ dotenv.config();
 const dbURL: any = process.env.DB_URL;
 const port: Number = 8080;
 
+const clientOptions: any = {
+  useUnifiedTopology: true,
+};
+
 mongoose
-  .connect(dbURL)
+  .connect(dbURL, clientOptions)
   .then(() => {
     console.log('DB connection successful!');
   })
